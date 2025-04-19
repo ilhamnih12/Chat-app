@@ -1,0 +1,7 @@
+
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[dev]
+  functionsPort = 9999
