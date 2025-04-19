@@ -1,0 +1,12 @@
+{
+  "name": "netlify-chat-functions",
+  "version": "1.0.0",
+  "description": "Simple group chat using Pusher on Netlify Functions",
+  "main": "send-message.js",
+  "scripts": {
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "pusher": "^5.0.2"
+  }
+}
