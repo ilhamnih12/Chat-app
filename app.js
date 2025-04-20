@@ -1,4 +1,3 @@
-
 const loginDiv = document.getElementById("login");
 const chatDiv = document.getElementById("chat");
 const usernameInput = document.getElementById("username");
@@ -26,6 +25,7 @@ function login() {
 function showChat() {
   loginDiv.style.display = "none";
   chatDiv.style.display = "block";
+  loadMessages();
 }
 
 function sendMessage() {
@@ -55,25 +55,16 @@ function setupPusher() {
     cluster: "mt1",
   });
 
-  const channel = pusher.subscribe("chat");
-  channel.bind("message", addMessage);
+  const channel = pusher.subscribe("chat"); // Update channel name
+  channel.bind("message", addMessage); // Update event name
 }
-
-
 
 async function loadMessages() {
   try {
     const res = await fetch("/.netlify/functions/get-messages");
     const messages = await res.json();
-    messages.forEach(msg => renderMessage(msg));
+    messages.forEach(addMessage); // Ensure messages are rendered correctly
   } catch (e) {
     console.error("Failed to load messages", e);
   }
-}
-
-// Panggil loadMessages setelah chat ditampilkan
-function showChat() {
-  loginDiv.style.display = "none";
-  chatDiv.style.display = "block";
-  loadMessages();
 }
