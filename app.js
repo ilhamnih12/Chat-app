@@ -36,9 +36,14 @@ function sendMessage() {
     method: "POST",
     body: JSON.stringify({ ...user, content }),
     headers: { "Content-Type": "application/json" },
-  });
-
-  messageInput.value = "";
+  })
+    .then(() => {
+      messageInput.value = "";
+      loadMessages(); // reload pesan setelah kirim
+    })
+    .catch((e) => {
+      console.error("Failed to send message", e);
+    });
 }
 
 function addMessage(data) {
@@ -49,20 +54,25 @@ function addMessage(data) {
 }
 
 function setupPusher() {
-  Pusher.logToConsole = false;
+  Pusher.logToConsole = true; // aktifkan log untuk debug
 
-  const pusher = new Pusher("PUSHER_KEY_FROM_ENV", {
-    cluster: "PUSHER_CLUSTER_FROM_ENV",
+  const pusher = new Pusher("3925ec66482126a69fde", {
+    cluster: "mt1",
   });
 
   const channel = pusher.subscribe("chat");
-  channel.bind("message", addMessage);
+  channel.bind("message", function (data) {
+    addMessage(data);
+    // reload pesan agar sinkron dengan backend
+    loadMessages();
+  });
 }
 
 async function loadMessages() {
   try {
     const res = await fetch("/.netlify/functions/get-messages");
     const messages = await res.json();
+    messagesDiv.innerHTML = ""; // clear sebelum render ulang
     messages.forEach(addMessage);
   } catch (e) {
     console.error("Failed to load messages", e);

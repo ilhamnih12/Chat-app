@@ -5,10 +5,8 @@
 [dev]
   functionsPort = 9999
 
-[functions]
-  environment = [
-    "PUSHER_APP_ID",
-    "PUSHER_KEY",
-    "PUSHER_SECRET",
-    "PUSHER_CLUSTER"
-  ]
+[functions.environment]
+PUSHER_APP_ID = "1977760"
+PUSHER_KEY = "3925ec66482126a69fde"
+PUSHER_SECRET = "918c29c07605a74e8d2b"
+PUSHER_CLUSTER = "mt1"
