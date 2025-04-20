@@ -58,3 +58,22 @@ function setupPusher() {
   const channel = pusher.subscribe("chat");
   channel.bind("message", addMessage);
 }
+
+
+
+async function loadMessages() {
+  try {
+    const res = await fetch("/.netlify/functions/get-messages");
+    const messages = await res.json();
+    messages.forEach(msg => renderMessage(msg));
+  } catch (e) {
+    console.error("Failed to load messages", e);
+  }
+}
+
+// Panggil loadMessages setelah chat ditampilkan
+function showChat() {
+  loginDiv.style.display = "none";
+  chatDiv.style.display = "block";
+  loadMessages();
+}
