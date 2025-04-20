@@ -1,26 +1,21 @@
 require("dotenv").config(); // Load environment variables
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs-extra");
+const path = require("path");
 
-exports.handler = async function(event, context) {
-  const filePath = path.join(__dirname, 'messages.json');
+const messagesPath = path.join(__dirname, "messages.json");
 
+exports.handler = async () => {
+  let messages = [];
   try {
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, '[]'); // Buat file kosong jika belum ada
-    }
-
-    const data = fs.readFileSync(filePath, 'utf-8');
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: data
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to read messages', details: error.message })
-    };
+    messages = await fs.readJson(messagesPath);
+  } catch {
+    messages = [];
   }
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(messages),
+    headers: { "Content-Type": "application/json" },
+  };
 };

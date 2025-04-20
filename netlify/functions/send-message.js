@@ -1,7 +1,9 @@
 require("dotenv").config(); // Load environment variables
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs-extra");
+const path = require("path");
 const Pusher = require("pusher");
+
+const messagesPath = path.join(__dirname, "messages.json");
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID,
@@ -11,38 +13,37 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-exports.handler = async function(event, context) {
-  const body = JSON.parse(event.body);
-  const message = {
-    id: Date.now(),
-    username: body.username,
-    content: body.content,
-    timestamp: new Date().toISOString(),
-  };
-
-  const filePath = path.join(__dirname, "messages.json");
-
-  try {
-    let messages = [];
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath, "utf-8");
-      messages = JSON.parse(data);
-    }
-    messages.push(message);
-    fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
-
-    // Ensure Pusher trigger is correct
-    await pusher.trigger("chat", "message", message);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ status: "Message sent and saved" }),
-    };
-  } catch (err) {
-    console.error("Error:", err); // Log errors for debugging
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Failed to send/save message", details: err.message }),
-    };
+exports.handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
   }
+
+  const data = JSON.parse(event.body);
+
+  // Read existing messages
+  let messages = [];
+  try {
+    messages = await fs.readJson(messagesPath);
+  } catch {
+    messages = [];
+  }
+
+  // Add new message
+  const message = {
+    username: data.username,
+    content: data.content,
+    timestamp: Date.now(),
+  };
+  messages.push(message);
+
+  // Save messages
+  await fs.writeJson(messagesPath, messages);
+
+  // Trigger Pusher
+  await pusher.trigger("chat", "message", message);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ success: true }),
+  };
 };
