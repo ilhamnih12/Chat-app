@@ -6,4 +6,9 @@
   functionsPort = 9999
 
 [functions]
-  environment = ["PUSHER_APP_ID", "PUSHER_KEY", "PUSHER_SECRET", "PUSHER_CLUSTER"]
+  environment = [
+    "PUSHER_APP_ID",
+    "PUSHER_KEY",
+    "PUSHER_SECRET",
+    "PUSHER_CLUSTER"
+  ]

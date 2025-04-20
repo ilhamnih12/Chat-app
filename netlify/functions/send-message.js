@@ -17,10 +17,9 @@ exports.handler = async function(event, context) {
     id: Date.now(),
     username: body.username,
     content: body.content,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
-  // Path ke file pesan
   const filePath = path.join(__dirname, "messages.json");
 
   try {
@@ -32,16 +31,18 @@ exports.handler = async function(event, context) {
     messages.push(message);
     fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
 
-    await pusher.trigger("chat", "message", message); // Ensure correct channel and event names
+    // Ensure Pusher trigger is correct
+    await pusher.trigger("chat", "message", message);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ status: "Message sent and saved" })
+      body: JSON.stringify({ status: "Message sent and saved" }),
     };
   } catch (err) {
+    console.error("Error:", err); // Log errors for debugging
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to send/save message", details: err.message })
+      body: JSON.stringify({ error: "Failed to send/save message", details: err.message }),
     };
   }
 };
