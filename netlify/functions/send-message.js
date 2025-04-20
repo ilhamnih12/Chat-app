@@ -1,3 +1,4 @@
+require("dotenv").config(); // Load environment variables
 const fs = require('fs');
 const path = require('path');
 const Pusher = require("pusher");
@@ -31,7 +32,7 @@ exports.handler = async function(event, context) {
     messages.push(message);
     fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
 
-    await pusher.trigger("chat", "message", message); // Update channel and event names
+    await pusher.trigger("chat", "message", message); // Ensure correct channel and event names
 
     return {
       statusCode: 200,

@@ -51,19 +51,19 @@ function addMessage(data) {
 function setupPusher() {
   Pusher.logToConsole = false;
 
-  const pusher = new Pusher("3925ec66482126a69fde", {
-    cluster: "mt1",
+  const pusher = new Pusher("PUSHER_KEY_FROM_ENV", {
+    cluster: "PUSHER_CLUSTER_FROM_ENV",
   });
 
-  const channel = pusher.subscribe("chat"); // Update channel name
-  channel.bind("message", addMessage); // Update event name
+  const channel = pusher.subscribe("chat");
+  channel.bind("message", addMessage);
 }
 
 async function loadMessages() {
   try {
     const res = await fetch("/.netlify/functions/get-messages");
     const messages = await res.json();
-    messages.forEach(addMessage); // Ensure messages are rendered correctly
+    messages.forEach(addMessage);
   } catch (e) {
     console.error("Failed to load messages", e);
   }
