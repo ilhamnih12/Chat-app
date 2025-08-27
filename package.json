@@ -1,14 +1,13 @@
 {
   "name": "netlify-chat-functions",
   "version": "1.0.0",
-  "description": "Simple group chat using Pusher on Netlify Functions",
+  "description": "Simple group chat using Supabase on Netlify Functions",
   "main": "send-message.js",
   "scripts": {
     "start": "netlify dev"
   },
   "dependencies": {
-    "pusher": "^5.0.2",
-    "fs-extra": "^11.1.1",
+    "@supabase/supabase-js": "^2.56.0",
     "dotenv": "^8.2.0"
   }
 }

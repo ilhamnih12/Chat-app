@@ -1,49 +1,38 @@
-require("dotenv").config(); // Load environment variables
-const fs = require("fs-extra");
-const path = require("path");
-const Pusher = require("pusher");
+require("dotenv").config();
+const { createClient } = require("@supabase/supabase-js");
 
-const messagesPath = path.join(__dirname, "messages.json");
-
-const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID,
-  key: process.env.PUSHER_KEY,
-  secret: process.env.PUSHER_SECRET,
-  cluster: process.env.PUSHER_CLUSTER,
-  useTLS: true,
-});
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const data = JSON.parse(event.body);
-
-  // Read existing messages
-  let messages = [];
   try {
-    messages = await fs.readJson(messagesPath);
-  } catch {
-    messages = [];
+    const { username, content } = JSON.parse(event.body);
+
+    if (!username || !content) {
+      return { statusCode: 400, body: "Username and content are required." };
+    }
+
+    const { data, error } = await supabase
+      .from("messages")
+      .insert([{ username, content }]);
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, data }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
   }
-
-  // Add new message
-  const message = {
-    username: data.username,
-    content: data.content,
-    timestamp: Date.now(),
-  };
-  messages.push(message);
-
-  // Save messages
-  await fs.writeJson(messagesPath, messages);
-
-  // Trigger Pusher
-  await pusher.trigger("chat", "message", message);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ success: true }),
-  };
 };

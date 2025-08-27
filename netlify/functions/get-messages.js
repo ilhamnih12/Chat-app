@@ -1,21 +1,30 @@
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();
+const { createClient } = require("@supabase/supabase-js");
 
-const fs = require("fs-extra");
-const path = require("path");
-
-const messagesPath = path.join(__dirname, "messages.json");
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 exports.handler = async () => {
-  let messages = [];
   try {
-    messages = await fs.readJson(messagesPath);
-  } catch {
-    messages = [];
-  }
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .order("timestamp", { ascending: true });
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(messages),
-    headers: { "Content-Type": "application/json" },
-  };
+    if (error) {
+      throw error;
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" },
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
+  }
 };
