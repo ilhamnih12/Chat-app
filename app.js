@@ -11,16 +11,26 @@ const logoutButton = document.getElementById("logout-button");
 const userInfoDiv = document.getElementById("user-info");
 
 let currentUser = null;
+let messagesCache = [];
 
 // Add a message to the UI
-function addMessage(message) {
-    const p = document.createElement("p");
-    p.textContent = `${message.username}: ${message.content}`;
-    messagesDiv.appendChild(p);
+function renderMessages(messages) {
+    // A simple optimization to avoid re-rendering if messages haven't changed
+    if (JSON.stringify(messages) === JSON.stringify(messagesCache)) {
+        return;
+    }
+
+    messagesCache = messages;
+    messagesDiv.innerHTML = ""; // Clear existing messages
+    messages.forEach(message => {
+        const p = document.createElement("p");
+        p.textContent = `${message.username}: ${message.content}`;
+        messagesDiv.appendChild(p);
+    });
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Load initial messages
+// Load messages from Supabase
 async function loadMessages() {
     const { data, error } = await supabase
         .from('messages')
@@ -31,18 +41,7 @@ async function loadMessages() {
         console.error("Error loading messages:", error);
         return;
     }
-
-    messagesDiv.innerHTML = "";
-    data.forEach(addMessage);
-}
-
-// Set up real-time listener for new messages
-function setupRealtimeListener() {
-    supabase.channel('public:messages')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-            addMessage(payload.new);
-        })
-        .subscribe();
+    renderMessages(data);
 }
 
 // Send a message
@@ -60,6 +59,8 @@ window.sendMessage = async function() {
         console.error("Failed to send message:", error);
     } else {
         messageInput.value = "";
+        // Instantly load messages after sending for a smoother experience
+        await loadMessages();
     }
 };
 
@@ -69,8 +70,13 @@ async function checkUserAndInitialize() {
     if (session) {
         currentUser = session.user;
         userInfoDiv.textContent = `Anda login sebagai: ${currentUser.email}`;
-        loadMessages();
-        setupRealtimeListener();
+
+        // Initial load of messages
+        await loadMessages();
+
+        // Set up polling to check for new messages every 3 seconds
+        setInterval(loadMessages, 3000);
+
     } else {
         window.location.href = 'login.html';
     }
