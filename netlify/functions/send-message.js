@@ -1,13 +1,12 @@
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK only if it hasn't been initialized yet
 if (!admin.apps.length) {
+  // Parse the service account JSON from the environment variable
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+
   admin.initializeApp({
-    credential: admin.credential.cert({
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    }),
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
@@ -38,6 +37,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({ success: true, id: writeResult.id }),
     };
   } catch (error) {
+    // Log the error for debugging purposes
+    console.error('Error in send-message function:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: error.message }),
