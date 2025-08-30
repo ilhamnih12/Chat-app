@@ -1,60 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #f5f7fa;
+  --text-color: #333;
+  --light-text-color: #777;
+  --border-color: #e0e0e0;
+  --white: #fff;
+  --error-color: #e74c3c;
+  --success-color: #2ecc71;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  padding: 20px;
+  font-family: 'Nunito', sans-serif;
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#chat, .auth-container {
+  width: 100%;
+  max-width: 450px;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+}
+
+#chat {
+    height: 90vh;
+    max-height: 700px;
+}
+
+.chat-header, .auth-header {
+  padding: 1.5rem;
+  background-color: var(--primary-color);
+  color: var(--white);
+  text-align: center;
+  position: relative;
+}
+
+.chat-header h2, .auth-header h2 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+#user-info {
+  padding: 0.5rem 1.5rem;
   background: #f0f0f0;
+  font-size: 0.9rem;
+  color: var(--light-text-color);
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
 }
 
 #messages {
-  border: 1px solid #ccc;
-  padding: 10px;
-  height: 300px;
+  flex-grow: 1;
+  padding: 1.5rem;
   overflow-y: auto;
-  background: white;
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
+#messages p {
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+#messages p {
+    background-color: var(--secondary-color);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.chat-input-area {
+  display: flex;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  gap: 1rem;
+  background-color: var(--white);
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s, transform 0.1s;
+  white-space: nowrap;
+}
+
+button:hover {
+  background-color: #3a7bc8;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#logout-button {
+    background-color: var(--error-color);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 1.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+}
+#logout-button:hover {
+    background-color: #c0392b;
+}
+
+
+/* Auth Form Styles */
 .auth-container {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 300px;
+    padding: 0;
+    text-align: center;
 }
 
-.auth-container h2 {
-  margin-bottom: 1rem;
+.auth-body {
+    padding: 2.5rem;
 }
 
 .auth-container input {
   display: block;
-  width: calc(100% - 20px);
-  padding: 10px;
+  width: 100%;
   margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .auth-container button {
   width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.auth-container button:hover {
-  background-color: #0056b3;
+  margin-top: 0.5rem;
+  border-radius: 8px;
 }
 
 .auth-container p {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--light-text-color);
 }
+
+.auth-container a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-container a:hover {
+  text-decoration: underline;
+}
+
 
 .copyright {
   margin-top: 20px;
-  font-size: 0.8rem;
-  color: #666;
+  text-align: center;
+  width: 100%;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: var(--light-text-color);
 }

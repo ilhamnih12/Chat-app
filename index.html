@@ -4,21 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Group Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="chat">
-    <h2>Group Chat</h2>
+    <div class="chat-header">
+      <h2>Group Chat</h2>
+      <button id="logout-button">Logout</button>
+    </div>
     <div id="user-info"></div>
     <div id="messages"></div>
-    <input type="text" id="message" placeholder="Ketik pesan..." />
-    <button onclick="sendMessage()">Kirim</button>
-    <button id="logout-button">Logout</button>
+    <div class="chat-input-area">
+      <input type="text" id="message" placeholder="Ketik pesan..." />
+      <button onclick="sendMessage()">Kirim</button>
+    </div>
   </div>
 
   <script src="app.js" type="module"></script>
-    <footer class="copyright">
-      <p>Created by Edinst</p>
-    </footer>
+  <footer class="copyright">
+    <p>Created by Edinst</p>
+  </footer>
 </body>
 </html>

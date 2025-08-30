@@ -4,15 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - Group Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="auth-container">
-    <h2>Login ke Group Chat</h2>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button id="login-button">Login</button>
-    <p>Belum punya akun? <a href="register.html">Daftar di sini</a></p>
+    <div class="auth-header">
+      <h2>Login ke Group Chat</h2>
+    </div>
+    <div class="auth-body">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="login-button">Login</button>
+      <p>Belum punya akun? <a href="register.html">Daftar di sini</a></p>
+    </div>
   </div>
 
   <script type="module">
@@ -35,8 +42,8 @@
       }
     });
   </script>
-    <footer class="copyright">
-      <p>Created by Edinst</p>
-    </footer>
+  <footer class="copyright">
+    <p>Created by Edinst</p>
+  </footer>
 </body>
 </html>
