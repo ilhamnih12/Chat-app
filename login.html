@@ -16,12 +16,8 @@
   </div>
 
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-    const SUPABASE_URL = 'https://fuotedccepkedxhgtszr.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3RlZGNjZXBrZWR4aGd0c3pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDQ4OTYsImV4cCI6MjA3MTg4MDg5Nn0.LTQSs_1y96Ry8pCET1i0DrAatzHzBRXpa4brEblSOT0';
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    import { auth } from './firebase-helpers.js';
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const loginButton = document.getElementById('login-button');
     const emailInput = document.getElementById('email');
@@ -31,16 +27,11 @@
       const email = emailInput.value;
       const password = passwordInput.value;
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
-
-      if (error) {
-        alert('Gagal login: ' + error.message);
-      } else {
-        // Redirect to the chat page on successful login
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
         window.location.href = 'index.html';
+      } catch (error) {
+        alert('Gagal login: ' + error.message);
       }
     });
   </script>
