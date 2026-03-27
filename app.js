@@ -1,80 +1,71 @@
-const loginDiv = document.getElementById("login");
-const chatDiv = document.getElementById("chat");
-const usernameInput = document.getElementById("username");
+import { auth, db } from './firebase-helpers.js';
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const messageInput = document.getElementById("message");
 const messagesDiv = document.getElementById("messages");
+const logoutButton = document.getElementById("logout-button");
+const userInfoDiv = document.getElementById("user-info");
 
-let user = JSON.parse(localStorage.getItem("chatUser"));
+let currentUser = null;
 
-if (user) {
-  showChat();
-  setupPusher();
+// Render messages to the UI
+function renderMessages(messages) {
+    messagesDiv.innerHTML = ""; // Clear existing messages
+    messages.forEach(message => {
+        const p = document.createElement("p");
+        p.textContent = `${message.username}: ${message.content}`;
+        messagesDiv.appendChild(p);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function login() {
-  const username = usernameInput.value.trim();
-  if (!username) return;
-
-  const id = "user_" + Math.random().toString(36).substring(2, 10);
-  user = { id, username };
-  localStorage.setItem("chatUser", JSON.stringify(user));
-  showChat();
-  setupPusher();
-}
-
-function showChat() {
-  loginDiv.style.display = "none";
-  chatDiv.style.display = "block";
-  loadMessages();
-}
-
-function sendMessage() {
-  const content = messageInput.value.trim();
-  if (!content) return;
-
-  fetch("/.netlify/functions/send-message", {
-    method: "POST",
-    body: JSON.stringify({ ...user, content }),
-    headers: { "Content-Type": "application/json" },
-  })
-    .then(() => {
-      messageInput.value = "";
-      loadMessages(); // reload pesan setelah kirim
-    })
-    .catch((e) => {
-      console.error("Failed to send message", e);
+// Listen for real-time messages
+function listenForMessages() {
+    const q = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+    onSnapshot(q, (querySnapshot) => {
+        const messages = [];
+        querySnapshot.forEach((doc) => {
+            messages.push(doc.data());
+        });
+        renderMessages(messages);
     });
 }
 
-function addMessage(data) {
-  const p = document.createElement("p");
-  p.textContent = `${data.username}: ${data.content}`;
-  messagesDiv.appendChild(p);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
+// Send a message
+window.sendMessage = async function() {
+    const content = messageInput.value.trim();
+    if (!content || !currentUser) return;
 
-function setupPusher() {
-  Pusher.logToConsole = true; // aktifkan log untuk debug
+    try {
+        await fetch("/.netlify/functions/send-message", {
+            method: "POST",
+            body: JSON.stringify({ username: currentUser.email, content: content }),
+            headers: { "Content-Type": "application/json" },
+        });
+        messageInput.value = "";
+    } catch (error) {
+        console.error("Failed to send message:", error);
+    }
+};
 
-  const pusher = new Pusher("3925ec66482126a69fde", {
-    cluster: "mt1",
-  });
+// Check user session and initialize
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        userInfoDiv.textContent = `Anda login sebagai: ${currentUser.email}`;
+        listenForMessages();
+    } else {
+        window.location.href = 'login.html';
+    }
+});
 
-  const channel = pusher.subscribe("chat");
-  channel.bind("message", function (data) {
-    addMessage(data);
-    // reload pesan agar sinkron dengan backend
-    loadMessages();
-  });
-}
-
-async function loadMessages() {
-  try {
-    const res = await fetch("/.netlify/functions/get-messages");
-    const messages = await res.json();
-    messagesDiv.innerHTML = ""; // clear sebelum render ulang
-    messages.forEach(addMessage);
-  } catch (e) {
-    console.error("Failed to load messages", e);
-  }
-}
+// Logout
+logoutButton.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+    } catch (error) {
+        console.error("Error signing out:", error);
+    }
+});

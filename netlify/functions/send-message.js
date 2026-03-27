@@ -1,49 +1,47 @@
-require("dotenv").config(); // Load environment variables
-const fs = require("fs-extra");
-const path = require("path");
-const Pusher = require("pusher");
+const admin = require('firebase-admin');
 
-const messagesPath = path.join(__dirname, "messages.json");
+// Initialize Firebase Admin SDK only if it hasn't been initialized yet
+if (!admin.apps.length) {
+  // Parse the service account JSON from the environment variable
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
-const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID,
-  key: process.env.PUSHER_KEY,
-  secret: process.env.PUSHER_SECRET,
-  cluster: process.env.PUSHER_CLUSTER,
-  useTLS: true,
-});
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
+
+const db = admin.firestore();
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const data = JSON.parse(event.body);
-
-  // Read existing messages
-  let messages = [];
   try {
-    messages = await fs.readJson(messagesPath);
-  } catch {
-    messages = [];
+    const { username, content } = JSON.parse(event.body);
+
+    if (!username || !content) {
+      return { statusCode: 400, body: 'Username and content are required.' };
+    }
+
+    const message = {
+      username,
+      content,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const writeResult = await db.collection('messages').add(message);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, id: writeResult.id }),
+    };
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.error('Error in send-message function:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
   }
-
-  // Add new message
-  const message = {
-    username: data.username,
-    content: data.content,
-    timestamp: Date.now(),
-  };
-  messages.push(message);
-
-  // Save messages
-  await fs.writeJson(messagesPath, messages);
-
-  // Trigger Pusher
-  await pusher.trigger("chat", "message", message);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ success: true }),
-  };
 };

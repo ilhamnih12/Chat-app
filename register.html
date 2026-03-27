@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daftar - Group Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <h2>Daftar Akun Baru</h2>
+    </div>
+    <div class="auth-body">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="register-button">Daftar</button>
+      <p>Sudah punya akun? <a href="login.html">Login di sini</a></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth } from './firebase-helpers.js';
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const registerButton = document.getElementById('register-button');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+
+    registerButton.addEventListener('click', async () => {
+      const email = emailInput.value;
+      const password = passwordInput.value;
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('Pendaftaran berhasil! Anda sekarang akan diarahkan ke halaman login.');
+        window.location.href = 'login.html';
+      } catch (error) {
+        alert('Gagal mendaftar: ' + error.message);
+      }
+    });
+  </script>
+  <footer class="copyright">
+    <p>Created by Edinst</p>
+  </footer>
+</body>
+</html>
